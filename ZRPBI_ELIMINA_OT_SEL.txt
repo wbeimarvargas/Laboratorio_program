@@ -1,0 +1,19 @@
+*&---------------------------------------------------------------------*
+*& Include          ZRPBI_ELIMINA_OT_SEL
+*&---------------------------------------------------------------------*
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+PARAMETERS: p_file LIKE rlgrap-filename MODIF ID c1. "OBLIGATORY. "Ruta de archivo
+
+SELECTION-SCREEN END OF BLOCK b1.
+
+*Modulo de funcion que nos permite traer el erchivo del cargue
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+  CALL FUNCTION 'KD_GET_FILENAME_ON_F4'
+    EXPORTING
+      mask          = '.XLS'
+      fileoperation = 'W'
+    CHANGING
+      file_name     = p_file
+    EXCEPTIONS
+      mask_too_long = 0
+      OTHERS        = 2.

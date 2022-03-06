@@ -1,0 +1,39 @@
+*&---------------------------------------------------------------------*
+*& Report ZRPBI_ELIMINA_OT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT ZRPBI_ELIMINA_OT.
+
+INCLUDE ZRPBI_ELIMINA_OT_TOP.
+
+INCLUDE ZRPBI_ELIMINA_OT_SEL.
+
+INCLUDE ZRPBI_ELIMINA_OT_F01.
+
+START-OF-SELECTION.
+
+  IF p_file IS NOT INITIAL.
+    IF go_ZCL_UTILITIES_FPSL IS INITIAL.
+      CREATE OBJECT go_ZCL_UTILITIES_FPSL.
+    ENDIF.
+    REFRESH gt_archivo_ot.
+    go_ZCL_UTILITIES_FPSL->UPLOAD_LOCAL_FILE( EXPORTING IP_RUTA   = P_FILE
+                                              IMPORTING ET_SALIDA = gt_archivo_ot ).
+
+    IF gt_archivo_ot Is NOT INITIAL.
+      CLEAR gv_count_ot.
+      LOOP AT gt_archivo_ot INTO gw_archivo_ot.
+        ADD 1 TO gv_count_ot.
+        gv_count_ot_str = gv_count_ot.
+        CONCATENATE 'INICIO -- Proceso Orden nro:' gw_archivo_ot '--Registro Nro:'gv_count_ot_str INTO gv_mensaje.
+        WRITE:/ gv_mensaje.
+        PERFORM f_bi_elimina_orden USING gw_archivo_ot-orden.
+        CONCATENATE 'FIN -- Proceso Orden nro:' gw_archivo_ot '--Registro Nro:'gv_count_ot_str INTO gv_mensaje.
+        WRITE:/ gv_mensaje.
+      ENDLOOP.
+    ENDIF.
+
+  ENDIF.
+
+END-OF-SELECTION.

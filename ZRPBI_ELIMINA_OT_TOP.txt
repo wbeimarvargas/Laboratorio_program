@@ -1,0 +1,19 @@
+*&---------------------------------------------------------------------*
+*& Include          ZRPBI_ELIMINA_OT_TOP
+*&---------------------------------------------------------------------*
+
+******DECLARACIONES PARA EL BATH INPUT
+DATA: BEGIN OF gt_bdcprog OCCURS 0.
+
+        INCLUDE STRUCTURE bdcdata.
+
+DATA: END OF gt_bdcprog.
+
+DATA: gt_bdcmsgcoll TYPE TABLE OF bdcmsgcoll WITH HEADER LINE.
+
+DATA: go_ZCL_UTILITIES_FPSL TYPE REF TO ZCL_UTILITIES_FPSL,
+      gt_archivo_ot    TYPE STANDARD TABLE OF ZWOTS,
+      gw_archivo_ot    TYPE ZWOTS,
+      gv_count_ot TYPE I,
+      gv_count_ot_STR TYPE CHAR10,
+      gv_mensaje TYPE STRING.

@@ -1,0 +1,102 @@
+*&---------------------------------------------------------------------*
+*& Include          ZRPBI_ELIMINA_OT_F01
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*& Form f_bi_elimina_orden
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*&      --> GW_ARCHIVO_OT_ORDEN
+*&---------------------------------------------------------------------*
+FORM f_bi_elimina_orden  USING    p_orden.
+
+* 'A' vas viendo las pantallas como se llenan, 'N' corre el BI de fondo
+DATA: lv_modo_ejecucion TYPE C VALUE 'N',
+      lv_mensaje TYPE STRING.
+
+  lv_modo_ejecucion = 'N'.
+
+PERFORM f_pantalla  USING 'RDDM0001' '0100'.
+PERFORM f_campo USING 'BDC_OKCODE' '=SNGL'.
+PERFORM f_campo USING 'BDC_SUBSCR' 'RDDM0001                                0220COMMONSUBSCREEN'.
+PERFORM f_campo USING 'BDC_CURSOR' 'TRDYSE01CM-USERNAME'.
+*PERFORM f_campo USING 'TRDYSE01CM-USERNAME S98691
+*PERFORM f_campo USING 'TRDYSE01CM-REQ_CUST' 'X'.
+*PERFORM f_campo USING 'TRDYSE01CM-SEL_CHAN' 'X'.
+PERFORM f_campo USING 'BDC_SUBSCR' 'RDDM0003                                0005TABSTRIP_CONTAINER'.
+PERFORM f_campo USING 'BDC_SUBSCR' 'RDDM0003                                0010RIGHTHALF'.
+
+**PANTALLA  2
+
+PERFORM f_pantalla  USING 'SAPLSTRH' '1200'.
+PERFORM f_campo USING 'BDC_CURSOR' 'GV_1200_TRKORR'.
+PERFORM f_campo USING 'BDC_OKCODE' '=TAKE'.
+PERFORM f_campo USING 'GV_1200_TRKORR' p_orden. "F4DK900302
+
+PERFORM f_pantalla  USING 'SAPMSSY0' '0120'.
+PERFORM f_campo USING 'BDC_OKCODE' '=DELE'.
+
+PERFORM f_pantalla  USING 'SAPLSPO1' '0500'.
+PERFORM f_campo USING 'BDC_OKCODE' '=OPT1'.
+PERFORM f_campo USING 'BDC_SUBSCR' 'SAPLSPO1                                0501SUBSCREEN'.
+
+PERFORM f_pantalla  USING 'SAPMSSY0' '0120'.
+PERFORM f_campo USING 'BDC_OKCODE' '=TRRT'.
+
+PERFORM f_pantalla  USING 'RDDM0001' '0100'.
+PERFORM f_campo USING 'BDC_OKCODE' '/EBACK'.
+
+
+  CALL TRANSACTION        'SE10'
+      USING          gt_bdcprog
+      MODE           lv_modo_ejecucion
+      MESSAGES INTO  gt_bdcmsgcoll.
+
+  LOOP AT gt_bdcmsgcoll.
+    CONCATENATE gt_bdcmsgcoll-TCODE
+                gt_bdcmsgcoll-DYNAME
+                gt_bdcmsgcoll-DYNUMB
+                gt_bdcmsgcoll-MSGTYP
+                gt_bdcmsgcoll-MSGSPRA
+                gt_bdcmsgcoll-MSGID
+                gt_bdcmsgcoll-MSGNR
+                gt_bdcmsgcoll-MSGV1
+                gt_bdcmsgcoll-MSGV2
+           INTO lv_mensaje SEPARATED BY '-'.
+    WRITE:/ lv_mensaje.
+  ENDLOOP.
+
+  REFRESH: gt_bdcprog, gt_bdcmsgcoll.
+  CLEAR gt_bdcmsgcoll.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*&      Form  f_pantalla
+*&---------------------------------------------------------------------*
+*    Subrutina que carga cada pantalla en la estructura BDC
+*----------------------------------------------------------------------*
+FORM f_pantalla  USING    p_program  TYPE   bdc_prog
+                          p_dynpro   TYPE   bdc_dynr.
+
+  CLEAR gt_bdcprog.
+  gt_bdcprog-program = p_program.
+  gt_bdcprog-dynpro  = p_dynpro.
+  gt_bdcprog-dynbegin = 'X'.
+  APPEND gt_bdcprog.
+
+ENDFORM.                    " f_pantalla
+
+*&---------------------------------------------------------------------*
+*&      Form  f_campo
+*&---------------------------------------------------------------------*
+*    Subrutina que carga cada campo en la estructura BDC
+*----------------------------------------------------------------------*
+FORM f_campo  USING  p_nombre TYPE c
+                     p_valor  TYPE c.
+
+  CLEAR gt_bdcprog.
+  gt_bdcprog-fnam = p_nombre.
+  gt_bdcprog-fval = p_valor.
+  APPEND gt_bdcprog.
+
+ENDFORM.                    " f_campo
