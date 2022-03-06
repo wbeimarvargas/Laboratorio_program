@@ -1,2 +1,2 @@
-# Labotario
+# Laboratorio_program
 Unidad 2
